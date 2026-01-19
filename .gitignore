@@ -1,0 +1,19 @@
+# Virtual environments
+venv/
+venv64/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database files
+*.db
+
+# Machine learning models
+*.h5
+*.pkl
+
+# OS files
+.DS_Store
+Thumbs.db
+

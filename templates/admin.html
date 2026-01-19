@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bioresin Wind Turbine Recycling</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #e8f5e9;
+      color: #2e7d32;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: #2e8b57;
+      color: white;
+      font-weight: bold;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .menu {
+      flex: 1 1 200px;
+      max-width: 250px;
+      background: #c8e6c9;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      min-height: 200px;
+    }
+
+    .menu button {
+      background: white;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .menu button.active {
+      background: #66bb6a;
+      color: white;
+    }
+
+    .menu button:hover {
+      background: #a5d6a7;
+    }
+
+    .content {
+      flex: 2 1 400px;
+      min-width: 300px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 600px;
+      margin: auto;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 { margin-top: 0; text-align: center; }
+    label { font-weight: 600; display: block; margin-top: 10px; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #c8e6c9;
+      box-sizing: border-box;
+    }
+    input:focus { border-color: #43a047; outline: none; }
+
+    button.submit {
+      margin-top: 20px;
+      background: #43a047;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+
+    button.submit:hover { background: #2e7d32; }
+
+    canvas { max-width: 100%; margin-top: 20px; }
+
+    button.download {
+      margin-top: 15px;
+      background: #1b5e20;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .container { flex-direction: column; align-items: center; }
+      .menu { width: 100%; max-width: 400px; }
+      .content { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <div>♻️ Recycling Wind Turbine Blades using Bioresins</div>
+  <div>
+    <a href="{{ url_for('admin') }}" style="color: white; text-decoration: none; font-size: 1.5rem">⌂</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="menu">
+    <button class="active" onclick="showContent('admin')">Admin Model</button>
+    <button onclick="showContent('solver')">Solver Analysis</button>
+    <button onclick="showContent('reclamation')">Reclamation</button>
+    <button onclick="showContent('fabrication')">Fabrication</button>
+    <button onclick="showContent('assessment')">Assessment</button>
+    <button onclick="showContent('final')">Final Report</button>
+  </div>
+
+  <div class="content">
+    <div id="content-card" class="card">
+      {% if not blade_id %}
+      <h2>Admin Model</h2>
+      <form method="POST" action="{{ url_for('admin') }}">
+        <label>Blade Length (m)</label>
+        <input type="number" step="0.01" name="length" required />
+        <label>Blade Width (m)</label>
+        <input type="number" step="0.01" name="width" required />
+        <label>Blade Weight (kg)</label>
+        <input type="number" step="0.01" name="weight" required />
+        <label>Blade Circumference (m)</label>
+        <input type="number" step="0.01" name="circumference" required />
+        <button type="submit" class="submit">Submit to Solver Analysis</button>
+      </form>
+      {% else %}
+      <h2>Welcome</h2>
+      <p>Select a module from the right side to view analysis and charts.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  const blade_id = {{ blade_id if blade_id else 'null' }};
+  let chartInstance = null;
+
+  async function showContent(module) {
+    const card = document.getElementById("content-card");
+    const buttons = document.querySelectorAll(".menu button");
+    buttons.forEach(btn => btn.classList.remove("active"));
+    event.target.classList.add("active");
+
+    if(!blade_id && module !== 'admin') {
+      card.innerHTML = "<h2>Please submit blade details first in Admin Model.</h2>";
+      return;
+    }
+
+    if(module === 'admin') {
+      location.href = '/';
+      return;
+    }
+
+    if(module === 'final'){
+      card.innerHTML = `
+        <h2>Final Report</h2>
+        <p>Click below to generate PDF with all modules.</p>
+        <button class="download" id="generateFinalPDF">Generate Final Report PDF</button>
+      `;
+      document.getElementById('generateFinalPDF').onclick = async function(){
+        const modules = ['solver','reclamation','fabrication','assessment'];
+        const finalPDF = new jspdf.jsPDF('p','pt','a4');
+        for(let i=0;i<modules.length;i++){
+          const res = await fetch(`/module_data/${blade_id}/${modules[i]}`);
+          const data = await res.json();
+
+          // Create temporary chart canvas
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = 600;
+          tempCanvas.height = 400;
+          const ctx = tempCanvas.getContext('2d');
+
+          let chartData = {};
+          let chartType = 'bar';
+          if(modules[i]==='solver'){
+            let parts = data.result.split('|');
+            chartData={labels:['Cut Pieces','Heating Temp','Heating Time'], datasets:[{label:'Values', data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor:['#4caf50','#ff9800','#2196f3']}]};
+          } else if(modules[i]==='reclamation'){
+            chartType='pie';
+            let parts = data.result.split('|');
+            chartData={labels: parts.map(p=>p.split(':')[0].trim()), datasets:[{data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor:['#4caf50','#2196f3','#ff9800','#9c27b0']}]};
+          } else if(modules[i]==='fabrication'){
+            chartType='bar';
+            let materials = JSON.parse(data.result.replace(/'/g,'"'));
+            chartData={labels:Object.keys(materials), datasets:[{label:'Material Qty', data:Object.values(materials), backgroundColor:'#4caf50'}]};
+          } else if(modules[i]==='assessment'){
+            chartType='bar';
+            let values = data.result.match(/\d+\.?\d*/g) || [0,0,0,0];
+            chartData={labels:['Metric1','Metric2','Metric3','Metric4'], datasets:[{label:'FNN Assessment', data:values, backgroundColor:'#ff9800'}]};
+          }
+
+          new Chart(ctx, {type:chartType, data:chartData, options:{responsive:false, animation:false}});
+          await new Promise(r=>setTimeout(r,500));
+
+          // Add chart to PDF
+          const imgData = tempCanvas.toDataURL('image/png');
+          finalPDF.setFontSize(16);
+          finalPDF.text(`${modules[i].charAt(0).toUpperCase()+modules[i].slice(1)} Module`, 40, 40);
+          finalPDF.addImage(imgData,'PNG',40,60,500,300);
+
+          // Add module text
+          finalPDF.setFontSize(12);
+          finalPDF.text(data.result, 40, 380);
+
+          if(i<modules.length-1) finalPDF.addPage();
+        }
+        finalPDF.save(`Final_Report_Blade_${blade_id}.pdf`);
+      };
+      return;
+    }
+
+    fetch(`/module_data/${blade_id}/${module}`)
+      .then(res=>res.json())
+      .then(data=>{
+        let html = `<h2>${module.charAt(0).toUpperCase()+module.slice(1)} Module</h2>`;
+        html += `<p>${data.result}</p>`;
+        html += `<canvas id="moduleChart"></canvas>`;
+        html += `<button class="download" onclick="downloadModulePDF('${module}', \`${data.result}\`)">Download PDF</button>`;
+        card.innerHTML=html;
+
+        const ctx=document.getElementById('moduleChart').getContext('2d');
+        let chartData={};
+        let chartType='bar';
+
+        if(module==='solver'){
+          let parts = data.result.split('|');
+          chartData={labels:['Cut Pieces','Heating Temp','Heating Time'], datasets:[{label:'Values', data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor:['#4caf50','#ff9800','#2196f3']}]} ;
+        } else if(module==='reclamation'){
+          chartType='pie';
+          let parts = data.result.split('|');
+          chartData={labels: parts.map(p=>p.split(':')[0].trim()), datasets:[{data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor:['#4caf50','#2196f3','#ff9800','#9c27b0']}]} ;
+        } else if(module==='fabrication'){
+          chartType='bar';
+          let materials = JSON.parse(data.result.replace(/'/g,'"'));
+          chartData={labels:Object.keys(materials), datasets:[{label:'Material Qty', data:Object.values(materials), backgroundColor:'#4caf50'}]} ;
+        } else if(module==='assessment'){
+          chartType='bar';
+          let values = data.result.match(/\d+\.?\d*/g) || [0,0,0,0];
+          chartData={labels:['Metric1','Metric2','Metric3','Metric4'], datasets:[{label:'FNN Assessment', data:values, backgroundColor:'#ff9800'}]} ;
+        }
+
+        if(chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx,{type:chartType,data:chartData,options:{responsive:true}});
+      })
+      .catch(err=>{
+        card.innerHTML="<p>Error fetching data from server.</p>";
+        console.error(err);
+      });
+  }
+
+  function downloadModulePDF(module, textData){
+    const canvas = document.getElementById('moduleChart');
+    if(!canvas) return alert('No chart available to download.');
+
+    const pdf = new jspdf.jsPDF('p','pt','a4');
+    pdf.setFontSize(16);
+    pdf.text(`${module.charAt(0).toUpperCase() + module.slice(1)} Module`, 40, 40);
+
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 40, 60, 500, 300);
+
+    pdf.setFontSize(12);
+    pdf.text(textData, 40, 380);
+
+    pdf.save(`Module_${module}.pdf`);
+  }
+</script>
+
+</body>
+</html>
