@@ -3,179 +3,267 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bioresin Wind Turbine Recycling</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
+  <title>Bioresin Wind Turbine Recycling | Dashboard</title>
+  <link rel="stylesheet" href="../static/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
+    :root {
+      --sidebar-width: 280px;
+    }
+
     body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: #e8f5e9;
-      color: #2e7d32;
+      background: var(--bg-dark);
+      color: var(--text-main);
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .navbar {
+      background: rgba(10, 20, 20, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 15px 30px;
       display: flex;
       justify-content: space-between;
-      padding: 10px 20px;
-      background: #2e8b57;
-      color: white;
-      font-weight: bold;
+      align-items: center;
+      z-index: 100;
     }
 
-    .container {
+    .dashboard-container {
       display: flex;
       flex: 1;
-      flex-wrap: wrap;
-      padding: 20px;
-      gap: 20px;
-      justify-content: center;
+      overflow: hidden;
     }
 
-    .menu {
-      flex: 1 1 200px;
-      max-width: 250px;
-      background: #c8e6c9;
-      padding: 20px;
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 25, 25, 0.9);
+      border-right: 1px solid var(--glass-border);
+      padding: 30px 20px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      min-height: 200px;
+      gap: 10px;
+      overflow-y: auto;
     }
 
-    .menu button {
-      background: white;
-      border: none;
-      padding: 12px;
+    .sidebar h4 {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+      padding-left: 10px;
+    }
+
+    .menu-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-main);
+      padding: 12px 20px;
       border-radius: 12px;
+      text-align: left;
       font-weight: 600;
       cursor: pointer;
-      transition: 0.3s;
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .menu button.active {
-      background: #66bb6a;
-      color: white;
+    .menu-btn i, .menu-btn span {
+      pointer-events: none;
     }
 
-    .menu button:hover {
-      background: #a5d6a7;
+    .menu-btn i {
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
     }
 
-    .content {
-      flex: 2 1 400px;
-      min-width: 300px;
+    .menu-btn:hover {
+      background: rgba(0, 255, 213, 0.05);
+      border-color: rgba(0, 255, 213, 0.2);
+      color: var(--primary-glow);
     }
 
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      box-sizing: border-box;
-      max-width: 600px;
-      margin: auto;
-      animation: fadeIn 0.5s ease;
+    .menu-btn.active {
+      background: linear-gradient(135deg, rgba(0, 128, 128, 0.2), rgba(57, 255, 20, 0.1));
+      border-color: var(--primary-teal);
+      color: var(--primary-glow);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+    .menu-btn.active i {
+      color: var(--primary-glow);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      background: radial-gradient(circle at top right, rgba(0, 128, 128, 0.05), transparent);
+    }
+
+    .content-card {
+      max-width: 900px;
+      margin: 0 auto;
+      animation: revealEffect 0.6s ease-out;
+    }
+
+    @keyframes revealEffect {
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    h2 { margin-top: 0; text-align: center; }
-    label { font-weight: 600; display: block; margin-top: 10px; }
+    .form-group {
+      margin-bottom: 20px;
+    }
+
     input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 8px;
-      border: 1px solid #c8e6c9;
-      box-sizing: border-box;
-    }
-    input:focus { border-color: #43a047; outline: none; }
-
-    button.submit {
-      margin-top: 20px;
-      background: #43a047;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
       color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
+      padding: 12px 15px;
+      border-radius: 10px;
       width: 100%;
-      font-size: 1rem;
-      transition: 0.3s;
+      font-family: inherit;
     }
 
-    button.submit:hover { background: #2e7d32; }
-
-    canvas { max-width: 100%; margin-top: 20px; }
-
-    button.download {
-      margin-top: 15px;
-      background: #1b5e20;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: 600;
+    input:focus {
+      border-color: var(--primary-glow);
+      outline: none;
+      box-shadow: 0 0 10px rgba(0, 255, 213, 0.1);
     }
 
-    @media (max-width: 768px) {
-      .container { flex-direction: column; align-items: center; }
-      .menu { width: 100%; max-width: 400px; }
-      .content { width: 100%; }
+    .chart-container {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .result-text {
+      font-size: 1.1rem;
+      color: var(--primary-glow);
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(0, 255, 213, 0.05);
+      border-radius: 10px;
+      border-left: 4px solid var(--primary-glow);
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-container { flex-direction: column; height: auto; overflow: visible; }
+      .sidebar { 
+        width: 100%; 
+        height: auto; 
+        flex-direction: row; 
+        overflow-x: auto; 
+        padding: 15px; 
+        position: sticky; 
+        top: 0; 
+        background: rgba(15, 25, 25, 0.95);
+        z-index: 90;
+      }
+      .sidebar h4 { display: none; }
+      .menu-btn { white-space: nowrap; padding: 10px 15px; flex-shrink: 0; }
+      .main-content { padding: 20px; }
+      .content-card { width: 100%; }
+    @media print {
+      body * { visibility: hidden; }
+      #result-card, #result-card * { visibility: visible; }
+      #result-card { 
+        position: absolute; 
+        left: 0; 
+        top: 0; 
+        width: 100%; 
+        background: white !important; 
+        color: black !important;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+      }
+      .report-actions, .sidebar, .header-minimal { display: none !important; }
+      #moduleChart { max-width: 100% !important; height: auto !important; }
     }
   </style>
 </head>
 <body>
 
 <div class="navbar">
-  <div>♻️ Recycling Wind Turbine Blades using Bioresins</div>
-  <div>
-    <a href="{{ url_for('admin') }}" style="color: white; text-decoration: none; font-size: 1.5rem">⌂</a>
+  <div class="heading-font" style="font-size: 1.2rem; font-weight: 700;">
+    <span class="text-gradient">♻️ Wind Turbine Lifecycle</span>
   </div>
+  <a href="/" style="color: var(--text-muted); text-decoration: none;"><i data-lucide="home"></i></a>
 </div>
 
-<div class="container">
-  <div class="menu">
-    <button class="active" onclick="showContent('admin')">Admin Model</button>
-    <button onclick="showContent('solver')">Solver Analysis</button>
-    <button onclick="showContent('reclamation')">Reclamation</button>
-    <button onclick="showContent('fabrication')">Fabrication</button>
-    <button onclick="showContent('assessment')">Assessment</button>
-    <button onclick="showContent('final')">Final Report</button>
+<div class="dashboard-container">
+  <div class="sidebar">
+    <h4>Core Modules</h4>
+    <button class="menu-btn active" onclick="showContent('admin', this)">
+      <i data-lucide="layout-dashboard"></i> Admin Model
+    </button>
+    <button class="menu-btn" onclick="showContent('solver', this)">
+      <i data-lucide="cpu"></i> Solver Analysis
+    </button>
+    <button class="menu-btn" onclick="showContent('reclamation', this)">
+      <i data-lucide="recycle"></i> Reclamation
+    </button>
+    <button class="menu-btn" onclick="showContent('fabrication', this)">
+      <i data-lucide="factory"></i> Fabrication
+    </button>
+    <button class="menu-btn" onclick="showContent('assessment', this)">
+      <i data-lucide="activity"></i> Assessment
+    </button>
+    <button class="menu-btn" onclick="showContent('eco', this)">
+      <i data-lucide="leaf"></i> Eco Impact
+    </button>
+    <button class="menu-btn" onclick="showContent('final', this)">
+      <i data-lucide="file-text"></i> Final Report
+    </button>
   </div>
 
-  <div class="content">
-    <div id="content-card" class="card">
-      {% if not blade_id %}
-      <h2>Admin Model</h2>
-      <form method="POST" action="{{ url_for('admin') }}">
-        <label>Blade Length (m)</label>
-        <input type="number" step="0.01" name="length" required />
-        <label>Blade Width (m)</label>
-        <input type="number" step="0.01" name="width" required />
-        <label>Blade Weight (kg)</label>
-        <input type="number" step="0.01" name="weight" required />
-        <label>Blade Circumference (m)</label>
-        <input type="number" step="0.01" name="circumference" required />
-        <button type="submit" class="submit">Submit to Solver Analysis</button>
-      </form>
-      {% else %}
-      <h2>Welcome</h2>
-      <p>Select a module from the right side to view analysis and charts.</p>
-      {% endif %}
+  <div class="main-content">
+    <div id="content-container" class="content-card">
+      <div class="glass" style="padding: 40px;">
+        {% if not blade_id %}
+        <h2 class="text-gradient" style="margin-bottom: 30px;">Admin Model</h2>
+        <form method="POST" action="{{ url_for('admin') }}">
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+              <label>Blade Length (m)</label>
+              <input type="number" step="0.01" name="length" required />
+            </div>
+            <div class="form-group">
+              <label>Blade Width (m)</label>
+              <input type="number" step="0.01" name="width" required />
+            </div>
+            <div class="form-group">
+              <label>Blade Weight (kg)</label>
+              <input type="number" step="0.01" name="weight" required />
+            </div>
+            <div class="form-group">
+              <label>Blade Circumference (m)</label>
+              <input type="number" step="0.01" name="circumference" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Submit to Solver Analysis</button>
+        </form>
+        {% else %}
+        <h2 class="text-gradient">Blade ID: #{{ blade_id }}</h2>
+        <p style="color: var(--text-muted);">Select a module from the sidebar to view detailed analytics and performance metrics.</p>
+        <div style="margin-top: 40px; text-align: center;">
+          <i data-lucide="bar-chart-3" style="width: 100px; height: 100px; color: var(--glass-border);"></i>
+        </div>
+        {% endif %}
+      </div>
+      <div style="text-align: center; margin-top: 40px; color: var(--text-muted); font-size: 0.9rem;">
+        <p>Developed by P.Likitha Harshini | @2025 Sustanable project</p>
+      </div>
     </div>
   </div>
 </div>
@@ -183,135 +271,316 @@
 <script>
   const blade_id = {{ blade_id if blade_id else 'null' }};
   let chartInstance = null;
+  let currentModule = null;
 
-  async function showContent(module) {
-    const card = document.getElementById("content-card");
-    const buttons = document.querySelectorAll(".menu button");
-    buttons.forEach(btn => btn.classList.remove("active"));
-    event.target.classList.add("active");
+  // Initialize Lucide Icons
+  lucide.createIcons();
+
+  async function showContent(module, btn) {
+    currentModule = module; // Track active module for download
+    // UI Feedback
+    const buttons = document.querySelectorAll(".menu-btn");
+    buttons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const container = document.getElementById("content-container");
 
     if(!blade_id && module !== 'admin') {
-      card.innerHTML = "<h2>Please submit blade details first in Admin Model.</h2>";
+      container.innerHTML = `
+        <div class="glass" style="padding: 40px; text-align: center;">
+          <i data-lucide="alert-circle" style="color: #ff4d4d; width: 48px; height: 48px; margin-bottom: 20px;"></i>
+          <h2>Input Required</h2>
+          <p>Please submit blade details in the Admin Model first.</p>
+        </div>
+      `;
+      lucide.createIcons();
       return;
     }
 
     if(module === 'admin') {
-      location.href = '/';
+      window.location.href = '/admin';
       return;
     }
 
     if(module === 'final'){
-      card.innerHTML = `
-        <h2>Final Report</h2>
-        <p>Click below to generate PDF with all modules.</p>
-        <button class="download" id="generateFinalPDF">Generate Final Report PDF</button>
+      container.innerHTML = `
+        <div class="glass" style="padding: 40px;">
+          <h2 class="text-gradient">Final Impact Report</h2>
+          <p style="margin-bottom: 30px;">Consolidated data from all modules is ready for export.</p>
+          <button class="btn btn-primary" id="generateFinalPDF">
+            <i data-lucide="download" style="width: 18px; margin-right: 8px;"></i> Download PDF Report
+          </button>
+        </div>
       `;
-      document.getElementById('generateFinalPDF').onclick = async function(){
-        const modules = ['solver','reclamation','fabrication','assessment'];
-        const finalPDF = new jspdf.jsPDF('p','pt','a4');
-        for(let i=0;i<modules.length;i++){
-          const res = await fetch(`/module_data/${blade_id}/${modules[i]}`);
-          const data = await res.json();
-
-          // Create temporary chart canvas
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = 600;
-          tempCanvas.height = 400;
-          const ctx = tempCanvas.getContext('2d');
-
-          let chartData = {};
-          let chartType = 'bar';
-          if(modules[i]==='solver'){
-            let parts = data.result.split('|');
-            chartData={labels:['Cut Pieces','Heating Temp','Heating Time'], datasets:[{label:'Values', data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor:['#4caf50','#ff9800','#2196f3']}]};
-          } else if(modules[i]==='reclamation'){
-            chartType='pie';
-            let parts = data.result.split('|');
-            chartData={labels: parts.map(p=>p.split(':')[0].trim()), datasets:[{data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor:['#4caf50','#2196f3','#ff9800','#9c27b0']}]};
-          } else if(modules[i]==='fabrication'){
-            chartType='bar';
-            let materials = JSON.parse(data.result.replace(/'/g,'"'));
-            chartData={labels:Object.keys(materials), datasets:[{label:'Material Qty', data:Object.values(materials), backgroundColor:'#4caf50'}]};
-          } else if(modules[i]==='assessment'){
-            chartType='bar';
-            let values = data.result.match(/\d+\.?\d*/g) || [0,0,0,0];
-            chartData={labels:['Metric1','Metric2','Metric3','Metric4'], datasets:[{label:'FNN Assessment', data:values, backgroundColor:'#ff9800'}]};
-          }
-
-          new Chart(ctx, {type:chartType, data:chartData, options:{responsive:false, animation:false}});
-          await new Promise(r=>setTimeout(r,500));
-
-          // Add chart to PDF
-          const imgData = tempCanvas.toDataURL('image/png');
-          finalPDF.setFontSize(16);
-          finalPDF.text(`${modules[i].charAt(0).toUpperCase()+modules[i].slice(1)} Module`, 40, 40);
-          finalPDF.addImage(imgData,'PNG',40,60,500,300);
-
-          // Add module text
-          finalPDF.setFontSize(12);
-          finalPDF.text(data.result, 40, 380);
-
-          if(i<modules.length-1) finalPDF.addPage();
-        }
-        finalPDF.save(`Final_Report_Blade_${blade_id}.pdf`);
-      };
+      lucide.createIcons();
+      document.getElementById('generateFinalPDF').onclick = generateFinalReport;
       return;
     }
 
-    fetch(`/module_data/${blade_id}/${module}`)
-      .then(res=>res.json())
-      .then(data=>{
-        let html = `<h2>${module.charAt(0).toUpperCase()+module.slice(1)} Module</h2>`;
-        html += `<p>${data.result}</p>`;
-        html += `<canvas id="moduleChart"></canvas>`;
-        html += `<button class="download" onclick="downloadModulePDF('${module}', \`${data.result}\`)">Download PDF</button>`;
-        card.innerHTML=html;
+    // Fetch and Render Module
+    container.innerHTML = `
+      <div class="glass" style="padding: 40px;">
+        <h2 class="text-gradient">${module.charAt(0).toUpperCase() + module.slice(1)} Module</h2>
+        <div id="module-loading" style="text-align: center; padding: 20px;">
+          <div class="spinner"></div>
+        </div>
+        <div id="module-body" style="display: none;">
+          <div class="result-text" id="result-text"></div>
+          <div class="chart-container">
+            <canvas id="moduleChart"></canvas>
+          </div>
+          <div style="margin-top: 30px; display: flex; gap: 15px;">
+             <button class="btn btn-primary" onclick="downloadPDF('${module}')">⬇ Download Module PDF</button>
+          </div>
+        </div>
+      </div>
+    `;
 
-        const ctx=document.getElementById('moduleChart').getContext('2d');
-        let chartData={};
-        let chartType='bar';
+    try {
+      const res = await fetch(`/module_data/${blade_id}/${module}`);
+      const data = await res.json();
+      
+      document.getElementById('module-loading').style.display = 'none';
+      document.getElementById('module-body').style.display = 'block';
+      document.getElementById('result-text').innerText = data.result;
 
-        if(module==='solver'){
-          let parts = data.result.split('|');
-          chartData={labels:['Cut Pieces','Heating Temp','Heating Time'], datasets:[{label:'Values', data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor:['#4caf50','#ff9800','#2196f3']}]} ;
-        } else if(module==='reclamation'){
-          chartType='pie';
-          let parts = data.result.split('|');
-          chartData={labels: parts.map(p=>p.split(':')[0].trim()), datasets:[{data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor:['#4caf50','#2196f3','#ff9800','#9c27b0']}]} ;
-        } else if(module==='fabrication'){
-          chartType='bar';
-          let materials = JSON.parse(data.result.replace(/'/g,'"'));
-          chartData={labels:Object.keys(materials), datasets:[{label:'Material Qty', data:Object.values(materials), backgroundColor:'#4caf50'}]} ;
-        } else if(module==='assessment'){
-          chartType='bar';
-          let values = data.result.match(/\d+\.?\d*/g) || [0,0,0,0];
-          chartData={labels:['Metric1','Metric2','Metric3','Metric4'], datasets:[{label:'FNN Assessment', data:values, backgroundColor:'#ff9800'}]} ;
+      const ctx = document.getElementById('moduleChart').getContext('2d');
+      let chartData = {};
+      let chartType = 'bar';
+
+      // Design System Colors
+      const colors = ['#008080', '#00ffd5', '#39ff14', '#9c27b0', '#2196f3'];
+
+      if(module==='solver'){
+        let parts = data.result.split('|');
+        chartData={labels:['Cut Pieces','Heating Temp','Heating Time'], datasets:[{label:'Impact Values', data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor: colors.slice(0,3), borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1}]} ;
+      } else if(module==='reclamation'){
+        chartType='pie';
+        let parts = data.result.split('|');
+        chartData={labels: parts.map(p=>p.split(':')[0].trim()), datasets:[{data: parts.map(p=>parseFloat(p.split(':')[1])), backgroundColor: colors, borderWidth: 0}]} ;
+      } else if(module==='fabrication'){
+        chartType='bar';
+        let materials = JSON.parse(data.result.replace(/'/g,'"'));
+        chartData={labels:Object.keys(materials), datasets:[{label:'Material Quantity', data:Object.values(materials), backgroundColor: colors[1]}]} ;
+      } else if(module==='assessment'){
+        chartType='bar';
+        let values = data.result.match(/\d+\.?\d*/g) || [0,0,0,0];
+        chartData={labels:['Metric1','Metric2','Metric3','Metric4'], datasets:[{label:'FNN Neural Assessment', data:values, backgroundColor: colors[2]}]} ;
+      } else if(module==='eco'){
+        chartType='radar';
+        let vals = data.result.match(/\d+\.?\d*/g) || [0,0,0];
+        chartData={
+          labels: ['Eco Score', 'Carbon Footprint', 'Recyclability'],
+          datasets: [{
+            label: 'Sustainability Metrics',
+            data: vals,
+            backgroundColor: 'rgba(0, 255, 213, 0.2)',
+            borderColor: '#00ffd5',
+            pointBackgroundColor: '#39ff14'
+          }]
+        };
+      }
+
+    if(chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: chartType,
+        data: chartData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: '#a0b2b2', font: { family: 'Inter' } } }
+          },
+          scales: chartType === 'radar' ? {
+            r: {
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              angleLines: { color: 'rgba(255,255,255,0.1)' },
+              pointLabels: { color: '#a0b2b2' },
+              ticks: { display: false }
+            }
+          } : (chartType === 'bar' ? {
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b2b2' } },
+            x: { grid: { display: false }, ticks: { color: '#a0b2b2' } }
+          } : {})
         }
-
-        if(chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx,{type:chartType,data:chartData,options:{responsive:true}});
-      })
-      .catch(err=>{
-        card.innerHTML="<p>Error fetching data from server.</p>";
-        console.error(err);
       });
+
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = `<p>Error loading module data.</p>`;
+    }
   }
 
-  function downloadModulePDF(module, textData){
-    const canvas = document.getElementById('moduleChart');
-    if(!canvas) return alert('No chart available to download.');
+  async function generateFinalReport() {
+    const { jsPDF } = window.jspdf;
+    const modules = ['solver', 'reclamation', 'fabrication', 'assessment', 'eco'];
+    const finalPDF = new jsPDF('p', 'pt', 'a4');
+    finalPDF.setProperties({ title: 'Wind Turbine Analysis Report', author: 'P.Likitha Harshini' });
+    const colors = ['#008080', '#00ffd5', '#39ff14', '#9c27b0', '#2196f3'];
 
-    const pdf = new jspdf.jsPDF('p','pt','a4');
-    pdf.setFontSize(16);
-    pdf.text(`${module.charAt(0).toUpperCase() + module.slice(1)} Module`, 40, 40);
+    // Create temporary canvas for PDF rendering
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = 600;
+    tempCanvas.height = 400;
+    tempCanvas.style.display = 'none';
+    document.body.appendChild(tempCanvas);
+    const tempCtx = tempCanvas.getContext('2d');
 
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 40, 60, 500, 300);
+    for (let i = 0; i < modules.length; i++) {
+      const res = await fetch(`/module_data/${blade_id}/${modules[i]}`);
+      const data = await res.json();
 
-    pdf.setFontSize(12);
-    pdf.text(textData, 40, 380);
+      let chartData = {};
+      let chartType = 'bar';
 
-    pdf.save(`Module_${module}.pdf`);
+      if (modules[i] === 'solver') {
+        let parts = data.result.split('|');
+        chartData = { labels: ['Cut Pieces', 'Heating Temp', 'Heating Time'], datasets: [{ label: 'Values', data: parts.map(p => parseFloat(p.split(':')[1])), backgroundColor: colors.slice(0, 3) }] };
+      } else if (modules[i] === 'reclamation') {
+        chartType = 'pie';
+        let parts = data.result.split('|');
+        chartData = { labels: parts.map(p => p.split(':')[0].trim()), datasets: [{ data: parts.map(p => parseFloat(p.split(':')[1])), backgroundColor: colors }] };
+      } else if (modules[i] === 'fabrication') {
+        chartType = 'bar';
+        let materials = JSON.parse(data.result.replace(/'/g, '"'));
+        chartData = { labels: Object.keys(materials), datasets: [{ label: 'Material Qty', data: Object.values(materials), backgroundColor: colors[1] }] };
+      } else if (modules[i] === 'assessment') {
+        chartType = 'bar';
+        let values = data.result.match(/\d+\.?\d*/g) || [0, 0, 0, 0];
+        chartData = { labels: ['Metric1', 'Metric2', 'Metric3', 'Metric4'], datasets: [{ label: 'FNN Assessment', data: values, backgroundColor: colors[2] }] };
+      } else if (modules[i] === 'eco') {
+        chartType = 'radar';
+        let vals = data.result.match(/\d+\.?\d*/g) || [0, 0, 0];
+        chartData = { labels: ['Eco Score', 'Carbon Footprint', 'Recyclability'], datasets: [{ label: 'Sustainability', data: vals, backgroundColor: 'rgba(0, 128, 128, 0.2)', borderColor: '#008080' }] };
+      }
+
+      // Render chart to temporary canvas
+      const tempChart = new Chart(tempCtx, {
+        type: chartType,
+        data: chartData,
+        options: {
+          responsive: false,
+          animation: false,
+          plugins: { legend: { display: true } }
+        }
+      });
+
+      // Wait for render
+      await new Promise(r => setTimeout(r, 600));
+
+      // Add to PDF
+      finalPDF.setFontSize(18);
+      finalPDF.setTextColor(0, 128, 128);
+      finalPDF.text(`${modules[i].toUpperCase()} ANALYSIS`, 40, 50);
+
+      const imgData = tempCanvas.toDataURL('image/png');
+      finalPDF.addImage(imgData, 'PNG', 40, 70, 500, 300);
+
+      finalPDF.setFontSize(10);
+      finalPDF.setTextColor(100, 100, 100);
+      finalPDF.text(data.result, 40, 390);
+
+      tempChart.destroy();
+
+      if (i < modules.length - 1) finalPDF.addPage();
+    }
+
+    const fileName = "Final_Analysis_Report_" + (blade_id || "new") + ".pdf";
+    
+    // Base64 Data Stream Method
+    const blob = finalPDF.output('blob');
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const link = document.createElement('a');
+      link.href = e.target.result;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+    reader.readAsDataURL(blob);
+
+    document.body.removeChild(tempCanvas);
+  }
+
+  function downloadPDF(module) {
+    // Validate inputs
+    if (!blade_id) {
+      alert('Please submit blade data first before downloading.');
+      return;
+    }
+    const activeModule = module || currentModule;
+    if (!activeModule || activeModule === 'null' || activeModule === 'undefined') {
+      alert('Please click on a module (e.g. Solver Analysis) first, then click Download.');
+      return;
+    }
+
+    // Get jsPDF from any available global
+    let jsPDFClass = null;
+    if (window.jspdf && window.jspdf.jsPDF) {
+      jsPDFClass = window.jspdf.jsPDF;
+    } else if (window.jsPDF) {
+      jsPDFClass = window.jsPDF;
+    } else {
+      alert('PDF library not loaded. Please refresh the page and try again.');
+      return;
+    }
+
+    try {
+      const doc = new jsPDFClass('p', 'pt', 'a4');
+
+      // Title
+      doc.setFontSize(20);
+      doc.setTextColor(0, 128, 128);
+      doc.text(activeModule.toUpperCase() + ' MODULE REPORT', 40, 50);
+
+      // Blade info
+      doc.setFontSize(12);
+      doc.setTextColor(60, 60, 60);
+      doc.text('Blade ID: ' + blade_id, 40, 80);
+      doc.text('Generated: ' + new Date().toLocaleString(), 40, 100);
+
+      // Chart image
+      const chartEl = document.getElementById('moduleChart');
+      if (chartEl && chartEl.width > 0) {
+        try {
+          const imgData = chartEl.toDataURL('image/png', 1.0);
+          doc.addImage(imgData, 'PNG', 40, 120, 510, 280);
+        } catch(imgErr) {
+          doc.setFontSize(10);
+          doc.setTextColor(150, 150, 150);
+          doc.text('[Chart not available]', 40, 150);
+        }
+      }
+
+      // Results text
+      const resultEl = document.getElementById('result-text');
+      const resultText = resultEl ? resultEl.innerText : 'No results available';
+      doc.setFontSize(11);
+      doc.setTextColor(30, 30, 30);
+      const lines = doc.splitTextToSize(resultText, 510);
+      doc.text(lines, 40, 420);
+
+      // Footer
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.text('Developed by P.Likitha Harshini | @2025 Sustanable project', 40, 820);
+
+      // Download
+      const filename = activeModule + '_report_blade_' + blade_id + '.pdf';
+      doc.save(filename);
+
+    } catch(err) {
+      console.error('PDF generation error:', err);
+      alert('Error generating PDF: ' + err.message + '. Please try again.');
+    }
+  }
+
+  function downloadFinalReport() {
+    if (!blade_id) {
+      alert("Please generate analysis first.");
+      return;
+    }
+    window.location.href = `/download_pdf/${blade_id}/final`;
   }
 </script>
 

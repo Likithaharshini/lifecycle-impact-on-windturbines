@@ -13,14 +13,16 @@ REPORT_PATH = 'reports/pdfs/'
 MODEL_PATH = 'models/assessment_model.pkl'
 
 # Create necessary directories
+REPORT_PATH = "static/reports/"
+if not os.path.exists(REPORT_PATH):
+    os.makedirs(REPORT_PATH)
 os.makedirs('database', exist_ok=True)
-os.makedirs(REPORT_PATH, exist_ok=True)
 os.makedirs('models', exist_ok=True)
 
 # ---------------- Database Initialization ----------------
 conn = sqlite3.connect(DB_PATH)
-c = conn.cursor()
-c.execute('''
+cursor = conn.cursor()
+cursor.execute('''
 CREATE TABLE IF NOT EXISTS blades (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     length TEXT,
@@ -92,6 +94,16 @@ def assessment(length, width, weight, circumference):
     else:
         return "FNN Assessment Results: Placeholder (train model for accuracy)"
 
+def environmental_impact(length, width, weight, circumference):
+    # Logic: More weight/size usually means higher impact, but bioresins reduce it.
+    base_score = 100
+    size_penalty = (float(length) * float(width)) * 0.5
+    weight_penalty = float(weight) * 0.05
+    eco_score = max(0, min(100, base_score - size_penalty - weight_penalty + 30)) # +30 for Bioresin benefit
+    carbon_footprint = round(float(weight) * 1.2, 2) # Example kg CO2
+    recyclability = 85 # Constant for Bioresin project
+    return f"Eco Score: {eco_score} | Carbon Footprint: {carbon_footprint} kg | Recyclability: {recyclability}%"
+
 # ---------------- Flask Routes ----------------
 # Default landing page
 @app.route('/')
@@ -145,6 +157,8 @@ def module_data(blade_id, module):
         result = fabrication(length, width, weight, circumference)
     elif module == 'assessment':
         result = assessment(length, width, weight, circumference)
+    elif module == 'eco':
+        result = environmental_impact(length, width, weight, circumference)
     elif module == 'final':
         result = "Final Report includes all module data."
     else:
@@ -174,6 +188,8 @@ def download_pdf(blade_id, module):
         content = fabrication(length, width, weight, circumference)
     elif module == 'assessment':
         content = assessment(length, width, weight, circumference)
+    elif module == 'eco':
+        content = environmental_impact(length, width, weight, circumference)
     elif module == 'final':
         content = (
             "FINAL REPORT\n\n"
@@ -186,12 +202,28 @@ def download_pdf(blade_id, module):
         content = "Invalid module"
 
     filename = f"{REPORT_PATH}{module}_blade_{blade_id}.pdf"
-    c = canvas.Canvas(filename)
-    c.setFont("Helvetica", 12)
+    
+    # Always delete the old file first to prevent ReportLab's 'saved once' error
+    if os.path.exists(filename):
+        os.remove(filename)
+    
+    pdf_canvas = canvas.Canvas(filename)
+    pdf_canvas.setFont("Helvetica-Bold", 14)
+    pdf_canvas.drawString(50, 820, f"{module.upper()} MODULE REPORT")
+    pdf_canvas.drawString(50, 800, f"Blade ID: {blade_id}")
+    pdf_canvas.setFont("Helvetica", 11)
     for i, line in enumerate(content.split('\n')):
-        c.drawString(50, 800 - i*20, line)
-    c.save()
-    return send_file(filename, as_attachment=True)
+        pdf_canvas.drawString(50, 770 - i * 18, line)
+    pdf_canvas.setFont("Helvetica-Oblique", 9)
+    pdf_canvas.drawString(50, 40, "Developed by P.Likitha Harshini | @2025 Sustanable project")
+    pdf_canvas.save()
+    
+    return send_file(
+        filename,
+        as_attachment=True,
+        download_name=f"{module}_report.pdf",
+        mimetype='application/pdf'
+    )
 
 # ---------------- Run App ----------------
 if __name__ == '__main__':
